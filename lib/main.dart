@@ -5,7 +5,7 @@ import 'helper/sql_helper.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  SqlHelper().getDatabase();
+  SqlHelper.getDatabase();
   runApp(const MyApp());
 }
 

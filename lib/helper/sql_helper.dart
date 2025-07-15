@@ -4,36 +4,38 @@ import '../model/note_model.dart';
 
 
 class SqlHelper {
-  Database? database;
-  getDatabase() async {
-    if (database == null) {
-      database = await initDataBase();
+  static Database? database;
+
+  static getDatabase() async {
+    if (database != null) {
       return database;
     } else {
+      database = await initDataBase();
       return database;
     }
   }
 
-  initDataBase() async {
-    String path = join(await getDatabasesPath(), 'Notes.db');
+  static initDataBase() async {
+    String path = join(await getDatabasesPath(), 'engRehamNotesApp.db');
     return await openDatabase(
       path,
       version: 1,
-      onCreate: (db, index) async {
-        db.batch().execute('''
+      onCreate: (db, index) {
+        Batch batch = db.batch();
+        batch.execute('''
           CREATE TABLE Notes(
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           title TEXT, 
           content TEXT
           )
         ''');
-        db.batch().commit();
+        batch.commit();
       },
     );
   }
 
-  Future addNote(newNote) async {
-    Database db = getDatabase();
+  static Future addNote(Note newNote) async {
+    Database db = await getDatabase();
     await db.insert(
       'Notes',
       newNote.toMap(),
@@ -41,19 +43,21 @@ class SqlHelper {
     );
   }
 
-  Future<List<Map>> loadDate()async{
-    Database db = getDatabase();
+  static Future<List<Map>> loadDate()async{
+    Database db = await getDatabase();
     return await db.query('Notes');
   }
 
-  Future updatenote(Note newnote)async{
+  static Future updatenote(Note newnote)async{
     Database db = await getDatabase();
     await db.update('Notes',
-    newnote.toMap(),where: 'id=?',whereArgs: [newnote.id]
+    newnote.toMap(),
+        where: 'id=?',
+        whereArgs: [newnote.id]
     );
   }
 
-  Future deletenote(int id) async{
+  static Future deletenote(int id) async{
     Database db = getDatabase();
     await db.delete(
         'Notes',
@@ -62,7 +66,7 @@ class SqlHelper {
     );
   }
 
-  Future deleteallnote() async{
+  static Future deleteallnote() async{
     Database db = getDatabase();
     await db.delete('Notes');
   }
